@@ -1,0 +1,10 @@
+lv_platformio-master/.pio
+lv_platformio-master/.pioenvs
+lv_platformio-master/.piolibdeps
+lv_platformio-master/.clang_complete
+lv_platformio-master/.gcc-flags.json
+lv_platformio-master/.vscode/.browse.c_cpp.db*
+lv_platformio-master/.vscode/c_cpp_properties.json
+lv_platformio-master/.vscode/launch.json
+lv_platformio-master/.vscode/settings.json
+lv_platformio-master/.vscode/ipch
