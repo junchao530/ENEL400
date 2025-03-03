@@ -19,6 +19,17 @@ def load_data():
     except FileNotFoundError:
         st.error("File '1_year_data.csv' not found.")
         return pd.DataFrame()
+    
+def load_calgary_data():
+    try:
+        df= pd.read_csv('calgary_water_analysis.csv')
+        df['date'] = pd.to_datetime(df['date'], format="%Y-%m-%d")
+        df_monthly_avg = df.groupby('monthn').mean(numeric_only=True)
+        return df_monthly_avg
+
+    except FileNotFoundError:
+        st.error('File not found')
+        return pd.DataFrame()
 
 def aggregate_data(data, date, type):
     if type == "Daily":
@@ -42,3 +53,5 @@ def aggregate_data(data, date, type):
         numeric_columns = monthly_data.select_dtypes(include=[np.number]).columns
     
         return monthly_data.groupby(pd.Grouper(key='timestamp', freq='12H'))[numeric_columns].mean().reset_index()
+
+

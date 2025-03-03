@@ -7,6 +7,14 @@ def calculate_vol(val, time_frame):
         return val * 604.8
     if time_frame == "Monthly":
         return val * 2.628 * 10**3
+    
+def calculate_average_col(val, time_frame):
+    if time_frame == 'Daily':
+        return val 
+    if time_frame == 'Weekly':
+        return val * 7
+    if time_frame == "Monthly":
+        return val * 30
 
 settings = {
         "Temperature": {"average": 19.67, "range": (5, 15)},

@@ -20,9 +20,9 @@ if page_selection == "Histroical" and not df.empty:
     time_frame = st.sidebar.radio("Time Frame", ["Daily", "Weekly", "Monthly"])
     df_filtered = aggregate_data(df, date, time_frame)
     flow_avg = df_filtered["flow_rate"].mean()
-    flow_rate_range = 5.03
-    # Main Dashboard Layout
-    st.title("HydroMIND Water Usage Dashboard")
+    
+    
+    st.title("HydroMIND water Usage Dashboard")
     col1, col2 = st.columns(2)
 
     with col1:
@@ -34,10 +34,10 @@ if page_selection == "Histroical" and not df.empty:
         total_volume = calculate_vol(df_filtered['flow_rate'].mean(), time_frame)
         st.subheader("Historical Insights")
         st.bar_chart(bar_data(time_frame, df_filtered["temperature"].mean(),df_filtered["flow_rate"].mean(),df_filtered["purity"].mean() ))
-    cost_analysis(time_frame, flow_avg, flow_rate_range)
+    cost_analysis(date, time_frame, flow_avg)
 
 elif page_selection == "Forecast":
-    # Forecasting Section
+   
     st.title("Water Usage Forecast")
     historical_data = load_historical_data()
     model = load_prophet_model()
@@ -46,30 +46,30 @@ elif page_selection == "Forecast":
     st.plotly_chart(forecast_chart)
 
 elif page_selection == "Real-Time Monitoring":
-    # Real-Time Data Section
-    st.title("Live Water Usage Monitoring")
-    st.warning("Ensure the sensor is connected to USB before starting.")
-    
-    connection = usb_init()
-    if connection != -1:
-        st.success("USB Sensor Connected!")
-        real_time_chart = st.empty()
-        collected_data = []
+        # Real-Time Data Section
+        st.title("Live Water Usage Monitoring")
+        st.warning("Ensure the sensor is connected to USB before starting.")
+        
+        connection = usb_init()
+        if connection != -1:
+            st.success("USB Sensor Connected!")
+            real_time_chart = st.empty()
+            collected_data = []
 
-        while True:
-            raw_packet = read_from_usb(connection)
-            if raw_packet:
-                parsed_data = parse_data_packet(raw_packet)
-                collected_data.append(parsed_data)
+            while True:
+                raw_packet = read_from_usb(connection)
+                if raw_packet:
+                    parsed_data = parse_data_packet(raw_packet)
+                    collected_data.append(parsed_data)
 
-                df_live = pd.DataFrame(collected_data, columns=["timestamp", "flow", "temperature", "turbidity"])
-                df_live.set_index("timestamp", inplace=True)
+                    df_live = pd.DataFrame(collected_data, columns=["timestamp", "flow", "temperature", "turbidity"])
+                    df_live.set_index("timestamp", inplace=True)
 
-                real_time_chart.line_chart(df_live[["flow", "temperature", "turbidity"]])
+                    real_time_chart.line_chart(df_live[["flow", "temperature", "turbidity"]])
 
-                if len(collected_data) > 50:
-                    collected_data.pop(0)
+                    if len(collected_data) > 50:
+                        collected_data.pop(0)
 
-            time.sleep(2)
-    else:
-        st.error("Failed to connect to USB Sensor.")
+                time.sleep(2)
+        else:
+            st.error("Failed to connect to USB Sensor.")

@@ -220,7 +220,7 @@ def Historical(df_filtered,time_frame):
 
     with col6:
         st.metric(label="Average Cost ($)", value=f"${average_cost:.4f}")
-
+    
     
 
 def calculate_vol(val, time_frame):
