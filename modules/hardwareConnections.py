@@ -10,7 +10,7 @@ def usb_init():
     except Exception:
         return -1
 
-def read_from_usb(connection):
+def read_from_bluetooth(connection):
     if connection != -1:
         try:
             data = connection.readline(1024)

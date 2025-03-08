@@ -3,7 +3,7 @@ from modules.dataLoader import load_data, aggregate_data, load_historical_data
 from modules.projections import load_prophet_model, create_forecast_chart
 from modules.plots import plots, cost_analysis
 from modules.utils import calculate_vol, bar_data
-from modules.hardwareConnections import usb_init, read_from_usb, parse_data_packet
+from modules.hardwareConnections import usb_init, read_from_bluetooth, parse_data_packet
 import pandas as pd
 import time
 from datetime import datetime, timedelta
@@ -25,7 +25,7 @@ with st.sidebar:
     start_date = default_start_date
     time_frame = "Daily"
     df_filtered = aggregate_data(df, start_date, time_frame)
-
+    
 
 if page_selection == "Historical" and not df.empty:
     max_date = df['timestamp'].max().date()
@@ -73,7 +73,7 @@ elif page_selection == "Real-Time Monitoring":
             collected_data = []
 
             while True:
-                raw_packet = read_from_usb(connection)
+                raw_packet = read_from_bluetooth(connection)
                 if raw_packet:
                     parsed_data = parse_data_packet(raw_packet)
                     collected_data.append(parsed_data)
