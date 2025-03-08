@@ -6,16 +6,32 @@ from modules.utils import calculate_vol, bar_data
 from modules.hardwareConnections import usb_init, read_from_usb, parse_data_packet
 import pandas as pd
 import time
+from datetime import datetime, timedelta
 
 st.set_page_config(page_title="HydroMIND Dashboard", layout="wide")
 
-st.sidebar.title("Navigation")
-page_selection = st.sidebar.selectbox("Select a Page", ["Histroical", "Real-Time Monitoring", "Forecast"])
+
 
 df = load_data()
 
-if page_selection == "Histroical" and not df.empty:
+with st.sidebar:
+    st.title("HydroMIND Dashboard")
+    st.header("⚙️ Settings")
     max_date = df['timestamp'].max().date()
+    default_start_date = max_date - timedelta(days=365)  # Show a year by default
+
+    page_selection = st.selectbox("Select a Page", ("Real-Time Monitoring", "Historical", "Forecast"))
+
+    start_date = default_start_date
+    time_frame = "Daily"
+    df_filtered = aggregate_data(df, start_date, time_frame)
+
+
+if page_selection == "Historical" and not df.empty:
+    max_date = df['timestamp'].max().date()
+    default_start_date = max_date - timedelta(days=365)  # Show a year by default
+
+
     date = st.sidebar.date_input("Select Date", max_date)
     time_frame = st.sidebar.radio("Time Frame", ["Daily", "Weekly", "Monthly"])
     df_filtered = aggregate_data(df, date, time_frame)
