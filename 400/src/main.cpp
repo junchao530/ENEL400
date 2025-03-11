@@ -8,7 +8,7 @@
 
 // Define Constants
 #define FLOW_SENSOR 12
-#define TEMP_SENSOR 13
+#define TEMP_SENSOR 4
 #define TURBIDITY_SENSOR 34   // Use an ADC-capable pin
 #define BUTTON_PIN 2
 #define DEBOUNCE_DELAY 50     // Debounce time in ms
