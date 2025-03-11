@@ -1,1 +1,15 @@
 *.csv
+lv-platformio-master/.pio/
+lv-platformio-master/.vscode/
+lv-platformio-master/.vscode/
+*.elf
+*.bin
+*.hex
+*.pyc
+*.o
+lv-platformio-master/LICENSE
+lv-platformio-master/support
+lv-platformio-master/test
+lv-platformio-master/lib
+lv-platformio-master/README.md
+lv-platformio-master/.github/
