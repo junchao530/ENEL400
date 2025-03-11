@@ -20,9 +20,11 @@ def read_from_bluetooth(connection):
     return None
 
 def parse_data_packet(packet):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
     parts = packet.split(';')
-    date_time = datetime.strptime(parts[0].split(":")[1].strip(), "%Y-%m-%d %H-%M-%S")
+    #date_time = datetime.strptime(parts[0].split(":")[1].strip(), "%Y-%m-%d %H-%M-%S")
     flow = float(parts[1].split(":")[1].strip())
     temperature = float(parts[2].split(":")[1].strip())
     turbidity = float(parts[3].split(":")[1].strip())
-    return date_time, flow, temperature, turbidity
+    return current_time, flow, temperature, turbidity
