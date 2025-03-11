@@ -4,6 +4,7 @@
 #include <DallasTemperature.h>
 #include <LiquidCrystal.h>
 #include <RTClib.h>
+#include <BluetoothSerial.h>
 
 // Define Constants
 #define FLOW_SENSOR 12
@@ -12,12 +13,8 @@
 #define BUTTON_PIN 2
 #define DEBOUNCE_DELAY 50     // Debounce time in ms
 
-// ESP32 UART2 for Bluetooth
-#define RX_PIN 16
-#define TX_PIN 17
-
 // Create Objects
-HardwareSerial bluetoothSerial(1);  // Use UART1 (RX_PIN = 16, TX_PIN = 17)
+BluetoothSerial SerialBT;
 LiquidCrystal lcd(22, 23, 5, 18, 19, 21, 4, 2, 15, 14);
 OneWire oneWire(TEMP_SENSOR);
 DallasTemperature temp_sensor(&oneWire);
@@ -71,22 +68,25 @@ void run_turbidity_sensor() {
   water_quality_score = constrain(water_quality_score, 0, 100);
 }
 
+String formatSensorData(float tempC, float flow_rate, long turbidity, const String& date_time) {
+  // Create a formatted string
+  char buffer[100]; // Adjust buffer size as needed
+  snprintf(buffer, sizeof(buffer), 
+           "Date: %s;Flow: %.2f;Temperature: %.2f;Turbidity: %ld",
+           date_time.c_str(), flow_rate, tempC, turbidity);
+
+  return String(buffer);
+}
+
 void push_data() {
-  bluetoothSerial.print("Flow: ");
-  bluetoothSerial.print(flow_rate);
-  bluetoothSerial.print(";");
+  DateTime now = rtc.now();
+  String date_time = String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " +
+                     String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second());
 
-  if (tempC == -127.00) {
-    bluetoothSerial.print("Error: No DS18B20 sensor detected!;");
-  } else {
-    bluetoothSerial.print("Temperature: ");
-    bluetoothSerial.print(tempC);
-    bluetoothSerial.print(";");
-  }
-
-  bluetoothSerial.print("Turbidity: ");
-  bluetoothSerial.print(water_quality_score);
-  bluetoothSerial.println("");
+  String sensor_data = formatSensorData(tempC, flow_rate, water_quality_score, date_time);
+  
+  SerialBT.println(sensor_data);
+  Serial.println("Sent: " + sensor_data);
 }
 
 void print_lcd() {
@@ -118,13 +118,6 @@ void print_lcd() {
   }
 }
 
-void generate_datetime() {
-  DateTime now = rtc.now();
-  bluetoothSerial.printf("Date: %04d-%02d-%02d %02d:%02d:%02d;",
-                         now.year(), now.month(), now.day(),
-                         now.hour(), now.minute(), now.second());
-}
-
 void setup() {
   Serial.begin(115200);
   Serial.println("Setup started!");
@@ -148,8 +141,8 @@ void setup() {
   Serial.println("LCD initialized!");
 
   // Start Bluetooth
-  bluetoothSerial.begin(9600, SERIAL_8N1, RX_PIN, TX_PIN);  // Initialize UART1
-  Serial.println("Bluetooth initialized!");
+  SerialBT.begin("ESP32test #1"); //Bluetooth device name
+  Serial.println("The device started, now you can pair it with bluetooth!");
 
   // Initialize RTC
   if (!rtc.begin()) {
@@ -174,7 +167,6 @@ void loop() {
   run_temp_sensor();
   run_turbidity_sensor();
   print_lcd();
-  generate_datetime();
   push_data();
 
   Serial.println("Sensor Readings:");
@@ -191,6 +183,12 @@ void loop() {
   Serial.println(" L/min");
 
   Serial.println("---------------------");
+
+  // Check for incoming Bluetooth data
+  if (SerialBT.available()) {
+    String incoming = SerialBT.readString();
+    Serial.println("Received: " + incoming);
+  }
 
   delay(100);
 }
