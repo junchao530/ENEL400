@@ -30,17 +30,17 @@ public:
         {
             auto cfg = _bus_instance.config();
 
-            cfg.spi_host = VSPI_HOST;
+            cfg.spi_host = SPI2_HOST;
             cfg.spi_mode = 0;
-            cfg.freq_write = 40000000;
-            cfg.freq_read  = 16000000;
+            cfg.freq_write = 80000000;
+            cfg.freq_read  = 20000000;
             cfg.spi_3wire  = true;        
             cfg.use_lock   = true;        
             cfg.dma_channel = SPI_DMA_CH_AUTO;
-            cfg.pin_sclk = GPIO_NUM_18;
-            cfg.pin_mosi = GPIO_NUM_23;
-            cfg.pin_miso = GPIO_NUM_19;
-            cfg.pin_dc   = GPIO_NUM_25;
+            cfg.pin_sclk = GPIO_NUM_12;
+            cfg.pin_mosi = GPIO_NUM_11;
+            cfg.pin_miso = GPIO_NUM_13;
+            cfg.pin_dc   = GPIO_NUM_10;
 
             _bus_instance.config(cfg);              // Apply the settings to the bus.
             _panel_instance.setBus(&_bus_instance); // Sets the bus to the panel.
@@ -49,8 +49,8 @@ public:
         {                                        // Set display panel control.
             auto cfg = _panel_instance.config(); // Get the structure for display panel settings.
 
-            cfg.pin_cs = GPIO_NUM_5;   // Pin number to which CS is connected (-1 = disable)
-            cfg.pin_rst = GPIO_NUM_26;  // pin number where RST is connected (-1 = disable)
+            cfg.pin_cs = GPIO_NUM_18;   // Pin number to which CS is connected (-1 = disable)
+            cfg.pin_rst = GPIO_NUM_8;  // pin number where RST is connected (-1 = disable)
             cfg.pin_busy = -1; // pin number to which BUSY is connected (-1 = disable)
 
             // * The following setting values ​​are set to general default values ​​for each panel, and the pin number (-1 = disable) to which BUSY is connected, so please try commenting out any unknown items.
@@ -75,7 +75,7 @@ public:
         {                                        // Set backlight control. (delete if not necessary)
             auto cfg = _light_instance.config(); // Get the structure for backlight configuration.
 
-            cfg.pin_bl = GPIO_NUM_27;     // pin number to which the backlight is connected
+            cfg.pin_bl = GPIO_NUM_17;     // pin number to which the backlight is connected
             cfg.invert = false;  // true to invert backlight brightness
             cfg.freq = 44100;    // backlight PWM frequency
             cfg.pwm_channel = 0; // PWM channel number to use
