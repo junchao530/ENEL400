@@ -63,6 +63,14 @@ void setup() {
   generate_flow_arc();
   generate_temperature_arc();
   generate_quality_arc();
+
+  Serial.begin(115200);
+
+  if (psramFound()) {
+    Serial.println("PSRAM is enabled and available.");
+  } else {
+    Serial.println("PSRAM is NOT available. Check your platformio.ini!");
+  }
 }
 
 void loop() {
