@@ -12,7 +12,11 @@ static const uint32_t screenWidth = WIDTH;
 static const uint32_t screenHeight = HEIGHT;
 
 const unsigned int lvBufferSize = screenWidth * 30;
-uint8_t lvBuffer[2][lvBufferSize];
+uint8_t *lvBuffer[2];
+void allocate_lvBuffer_psram() {
+  lvBuffer[0] = (uint8_t *)ps_malloc(lvBufferSize);
+  lvBuffer[1] = (uint8_t *)ps_malloc(lvBufferSize);
+}
 
 static lv_display_t *lvDisplay;
 static lv_indev_t *lvInput;
@@ -67,6 +71,8 @@ static uint32_t my_tick(void)
 
 void hal_setup(void)
 {
+
+  allocate_lvBuffer_psram();
 
   /* Initialize the display drivers */
   tft.init();
