@@ -5,14 +5,14 @@
 
 /* include only one display settings */
 // #include "displays/lgfx_wt32sc01_plus.hpp"
-#include "displays/LGFX_ELECROW_3_5.hpp"
+#include "LGFX_ELECROW_3_5.hpp"
 
 
 static const uint32_t screenWidth = WIDTH;
 static const uint32_t screenHeight = HEIGHT;
 
 const unsigned int lvBufferSize = screenWidth * 30;
-static uint8_t *lvBuffer[2] = {nullptr, nullptr};
+uint8_t lvBuffer[2][lvBufferSize];
 
 static lv_display_t *lvDisplay;
 static lv_indev_t *lvInput;
@@ -67,27 +67,6 @@ static uint32_t my_tick(void)
 
 void hal_setup(void)
 {
-  Serial.begin(115200);
-
-  if (!psramFound()) {
-      Serial.println("PSRAM not detected! Using internal RAM.");
-  } else {
-      Serial.println("PSRAM detected. Allocating LVGL buffers in PSRAM.");
-  }
-
-  // Allocate LVGL buffers in PSRAM
-  lvBuffer[0] = (uint8_t *)heap_caps_malloc(lvBufferSize, MALLOC_CAP_SPIRAM);
-  lvBuffer[1] = (uint8_t *)heap_caps_malloc(lvBufferSize, MALLOC_CAP_SPIRAM);
-
-  if (!lvBuffer[0] || !lvBuffer[1]) {
-      Serial.println("❌ PSRAM allocation failed! Falling back to internal RAM.");
-      static uint8_t fallbackBuffer1[lvBufferSize];
-      static uint8_t fallbackBuffer2[lvBufferSize];
-      lvBuffer[0] = fallbackBuffer1;
-      lvBuffer[1] = fallbackBuffer2;
-  } else {
-      Serial.println("Successfully allocated LVGL buffers in PSRAM!");
-  }
 
   /* Initialize the display drivers */
   tft.init();

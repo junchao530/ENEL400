@@ -66,14 +66,20 @@ void setup() {
 
   Serial.begin(115200);
 
+}
+
+void loop() {
   if (psramFound()) {
     Serial.println("PSRAM is enabled and available.");
   } else {
     Serial.println("PSRAM is NOT available. Check your platformio.ini!");
   }
-}
-
-void loop() {
+  Serial.println("Total heap: ");
+  Serial.println(ESP.getHeapSize());
+  Serial.println("Total PSRAM: ");
+  Serial.println(ESP.getPsramSize());
+  Serial.println("Free PSRAM: ");
+  Serial.println(ESP.getFreePsram());
   update_arc_values();
   lv_task_handler();
   delay(10);
