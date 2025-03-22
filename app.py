@@ -1,7 +1,7 @@
 import streamlit as st
-from modules.dataLoader import load_data, aggregate_data, load_historical_data
+from modules.postgresDataLoader import load_data, aggregate_data, load_calgary_data
 from modules.projections import load_prophet_model, create_forecast_chart
-from modules.plots import plots, cost_analysis
+from modules.plots import plots, cost_analysis ,calgary_water_usage
 from modules.utils import calculate_vol, bar_data
 from modules.hardwareConnections import usb_init, read_from_bluetooth, parse_data_packet
 import pandas as pd
@@ -55,11 +55,11 @@ if page_selection == "Historical" and not df.empty:
 elif page_selection == "Forecast":
    
     st.title("Water Usage Forecast")
-    historical_data = load_historical_data()
-    model = load_prophet_model()
-    forecast = model.predict(historical_data)
-    forecast_chart = create_forecast_chart(historical_data, forecast)
-    st.plotly_chart(forecast_chart)
+    calgary_water_usage()
+    #model = load_prophet_model()
+    #forecast = model.predict(historical_data)
+    # forecast_chart = create_forecast_chart(historical_data, forecast)
+    #st.plotly_chart(forecast_chart)
 
 elif page_selection == "Real-Time Monitoring":
         # Real-Time Data Section

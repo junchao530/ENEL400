@@ -2,7 +2,7 @@ import pandas as pd
 import streamlit as st
 import numpy as np
 from modules.utils import calculate_vol, calculate_average_col
-from modules.dataLoader import load_calgary_data
+from modules.postgresDataLoader import load_calgary_data
 import calendar 
 
 def plots(title, y_axis, time, data, y):
@@ -35,3 +35,7 @@ def cost_analysis(date, time_frame, flow_avg):
 
     with col6:
         st.metric(label="Average Cost ($)", value=f"${average_cost:.4f}")
+
+def calgary_water_usage():
+    df = load_calgary_data()
+    st.line_chart(df.set_index('date')['Daily consumption per capita'])
