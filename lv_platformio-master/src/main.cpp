@@ -13,9 +13,17 @@
 
 #ifdef ARDUINO
 #include <Arduino.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <RTClib.h>
+#include <BluetoothSerial.h>
+#include <Wire.h>
 
 // DEFINES
 #define NUM_ARCS 3
+#define FLOW_SENSOR 14
+#define TEMP_SENSOR 13
+#define TURBIDITY_SENSOR 34   // Use an ADC-capable pin
 
 // GLOBAL VARIABLES
 
@@ -29,6 +37,63 @@ lv_obj_t *value_labels[NUM_ARCS];
 lv_obj_t *mainUI_Title;
 lv_obj_t *mainUI_Subtitle;
 lv_obj_t *title_labels[NUM_ARCS];
+
+// Create Objects
+BluetoothSerial SerialBT;
+OneWire oneWire(TEMP_SENSOR);
+DallasTemperature temp_sensor(&oneWire);
+RTC_DS1307 rtc;
+
+char buffer[16];
+
+unsigned long Htime, Ltime, Ttime;
+float flow_rate, frequency, tempC;
+long turbidity_raw, water_quality_score;
+
+void run_flow_sensor() {
+  Htime = pulseIn(FLOW_SENSOR, HIGH);
+  Ltime = pulseIn(FLOW_SENSOR, LOW);
+  Ttime = Htime + Ltime;
+
+  if (Ttime > 0) {
+    frequency = 1000000.0 / Ttime;
+    flow_rate = frequency / 5.5;
+  } else {
+    flow_rate = 0;  // No flow detected
+  }
+}
+
+void run_temp_sensor() {
+  temp_sensor.requestTemperatures();
+  tempC = temp_sensor.getTempCByIndex(0);
+}
+
+void run_turbidity_sensor() {
+  turbidity_raw = analogRead(TURBIDITY_SENSOR);
+  water_quality_score = map(turbidity_raw, 0, 4095, 0, 100);
+  water_quality_score = constrain(water_quality_score, 0, 100);
+}
+
+String formatSensorData(float tempC, float flow_rate, long turbidity, const String& date_time) {
+  // Create a formatted string
+  char buffer[100]; // Adjust buffer size as needed
+  snprintf(buffer, sizeof(buffer), 
+           "Date: %s;Flow: %.2f;Temperature: %.2f;Turbidity: %ld",
+           date_time.c_str(), flow_rate, tempC, turbidity);
+
+  return String(buffer);
+}
+
+void push_data() {
+  DateTime now = rtc.now();
+  String date_time = String(now.year()) + "-" + String(now.month()) + "-" + String(now.day()) + " " +
+                     String(now.hour()) + ":" + String(now.minute()) + ":" + String(now.second());
+
+  String sensor_data = formatSensorData(tempC, flow_rate, water_quality_score, date_time);
+  
+  SerialBT.println(sensor_data);
+  Serial.println("Sent: " + sensor_data);
+}
 
 // FUNCTION PROTOTYPES
 void apply_styles(lv_obj_t *arc, lv_obj_t *title_label, lv_obj_t *value_label);
@@ -63,9 +128,57 @@ void setup() {
   generate_flow_arc();
   generate_temperature_arc();
   generate_quality_arc();
+
+  Serial.begin(115200);
+  Serial.println("Setup started!");
+
+  // Initialize Pins
+  pinMode(FLOW_SENSOR, INPUT);
+  pinMode(TURBIDITY_SENSOR, INPUT);
+  Serial.println("Pins initialized!");
+
+  // Initialize Components
+  temp_sensor.begin();
+  Serial.println("Temperature sensor initialized!");
+
+  // Start Bluetooth
+  SerialBT.begin("ESP32test #1"); //Bluetooth device name
+  Serial.println("The device started, now you can pair it with bluetooth!");
+
+  // Initialize RTC
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    //while (1);  // Program hangs here if RTC fails
+  }
+  Serial.println("RTC initialized!");
+
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  Serial.println("RTC adjusted!");
+
+  Serial.println("Setup complete!");
 }
 
 void loop() {
+  run_flow_sensor();
+  run_temp_sensor();
+  run_turbidity_sensor();
+  push_data();
+
+  Serial.println("Sensor Readings:");
+  Serial.print("Temperature: ");
+  Serial.print(tempC);
+  Serial.println(" °C");
+
+  Serial.print("Turbidity: ");
+  Serial.print(water_quality_score);
+  Serial.println("/100");
+
+  Serial.print("Flow Rate: ");
+  Serial.print(flow_rate);
+  Serial.println(" L/min");
+
+  Serial.println("---------------------");
+
   update_arc_values();
   lv_task_handler();
   delay(10);
