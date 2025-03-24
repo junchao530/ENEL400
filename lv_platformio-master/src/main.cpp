@@ -108,6 +108,37 @@ void setup() {
   lv_init();
   hal_setup();
   
+  Serial.begin(115200);
+  Serial.println("Setup started!");
+
+  // Initialize Pins
+  pinMode(FLOW_SENSOR, INPUT);
+  pinMode(TURBIDITY_SENSOR, INPUT);
+  Serial.println("Pins initialized!");
+
+  // Initialize Components
+  temp_sensor.begin();
+  Serial.println("Temperature sensor initialized!");
+
+  // Start Bluetooth
+  if (!SerialBT.begin("ESP32test #1")) {
+    Serial.println("Bluetooth failed to start.");
+  } else {
+    Serial.println("The device started, now you can pair it with bluetooth!");
+  }
+
+  // Initialize RTC
+  if (!rtc.begin()) {
+    Serial.println("Couldn't find RTC");
+    //while (1);  // Program hangs here if RTC fails
+  }
+  Serial.println("RTC initialized!");
+
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+  Serial.println("RTC adjusted!");
+
+  Serial.println("Setup complete!");
+
   // Setting the screen background
   lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x16161c), LV_PART_MAIN);
 
@@ -129,33 +160,6 @@ void setup() {
   generate_temperature_arc();
   generate_quality_arc();
 
-  Serial.begin(115200);
-  Serial.println("Setup started!");
-
-  // Initialize Pins
-  pinMode(FLOW_SENSOR, INPUT);
-  pinMode(TURBIDITY_SENSOR, INPUT);
-  Serial.println("Pins initialized!");
-
-  // Initialize Components
-  temp_sensor.begin();
-  Serial.println("Temperature sensor initialized!");
-
-  // Start Bluetooth
-  SerialBT.begin("ESP32test #1"); //Bluetooth device name
-  Serial.println("The device started, now you can pair it with bluetooth!");
-
-  // Initialize RTC
-  if (!rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    //while (1);  // Program hangs here if RTC fails
-  }
-  Serial.println("RTC initialized!");
-
-  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
-  Serial.println("RTC adjusted!");
-
-  Serial.println("Setup complete!");
 }
 
 void loop() {
@@ -181,7 +185,7 @@ void loop() {
 
   update_arc_values();
   lv_task_handler();
-  delay(10);
+  delay(100);
 }
 
 // FUNCTION DEFINITIONS
