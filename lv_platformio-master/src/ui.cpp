@@ -5,6 +5,8 @@
 extern lv_obj_t *arcs[];
 extern lv_obj_t *value_labels[];
 extern lv_obj_t *title_labels[];
+extern float flow_rate;
+extern long water_quality_score;
 
 void generate_flow_arc(void) {
   title_labels[0] = lv_label_create(lv_scr_act());
@@ -64,22 +66,11 @@ void generate_quality_arc(void) {
 }
 
 void update_arc_values(void) {
-  static uint8_t flow_value = 0;
   static uint8_t temperature_value = 0;
-  static uint8_t quality_value = 0;
-  static bool flow_increasing = true;
   static bool temperature_increasing = true;
-  static bool quality_increasing = true;
 
   // Update flow arc value
-  if (flow_increasing) {
-    flow_value++;
-    if (flow_value >= 100) flow_increasing = false;
-  } else {
-    flow_value--;
-    if (flow_value <= 0) flow_increasing = true;
-  }
-  lv_arc_set_value(arcs[0], flow_value);
+  lv_arc_set_value(arcs[0], flow_rate);
   lv_obj_send_event(arcs[0], LV_EVENT_VALUE_CHANGED, (void*)"L/min");
 
   // Update temperature arc value
@@ -94,14 +85,7 @@ void update_arc_values(void) {
   lv_obj_send_event(arcs[1], LV_EVENT_VALUE_CHANGED, (void*)"°C");
 
   // Update quality arc value
-  if (quality_increasing) {
-    quality_value++;
-    if (quality_value >= 100) quality_increasing = false;
-  } else {
-    quality_value--;
-    if (quality_value <= 0) quality_increasing = true;
-  }
-  lv_arc_set_value(arcs[2], quality_value);
+  lv_arc_set_value(arcs[2], water_quality_score);
   lv_obj_send_event(arcs[2], LV_EVENT_VALUE_CHANGED, (void*)"%");
 }
 

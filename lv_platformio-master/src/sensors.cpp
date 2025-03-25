@@ -4,16 +4,12 @@
 
 // Sensor pin definitions
 #define FLOW_SENSOR      14
-#define TEMP_SENSOR      13
 #define TURBIDITY_SENSOR 34
 
 // Declare external globals (these are defined in main.cpp)
 extern unsigned long Htime, Ltime, Ttime;
-extern float flow_rate, frequency, tempC;
+extern float flow_rate, frequency;
 extern long turbidity_raw, water_quality_score;
-
-extern OneWire oneWire;
-extern DallasTemperature temp_sensor;
 
 void run_flow_sensor() {
   Htime = pulseIn(FLOW_SENSOR, HIGH);
@@ -26,11 +22,6 @@ void run_flow_sensor() {
   } else {
     flow_rate = 0;
   }
-}
-
-void run_temp_sensor() {
-  temp_sensor.requestTemperatures();
-  tempC = temp_sensor.getTempCByIndex(0);
 }
 
 void run_turbidity_sensor() {
