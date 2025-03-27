@@ -5,6 +5,10 @@ from modules.utils import calculate_vol, calculate_average_col
 from modules.postgresDataLoader import load_calgary_data
 import calendar 
 
+@st.cache_data
+def return_data():
+    return load_calgary_data()
+
 def plots(title, y_axis, time, data, y):
     st.subheader(title)
     chart_data = pd.DataFrame({'time': time, y_axis: data[y]}).set_index('time')
@@ -13,9 +17,10 @@ def plots(title, y_axis, time, data, y):
 
 
 def cost_analysis(date, time_frame, flow_avg):
-    df = load_calgary_data()
+    df = return_data()
+    df_monthly_avg = df.groupby('month_number').mean(numeric_only=True)
     selected_month = date.month
-    daily_average_month = df.loc[selected_month, 'Daily consumption per capita']
+    daily_average_month = df.loc[selected_month, 'daily_consumption']
     average_volume = calculate_average_col(daily_average_month, time_frame)
 
     st.subheader(f"Cost Analysis for the month of {calendar.month_name[selected_month]}")

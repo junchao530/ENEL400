@@ -266,13 +266,14 @@ def read_from_usb(connection):
     return None
 
 def parse_data_packet(packet):
+    print(packet)
     parts = packet.split(';')
 
 # Extract each value based on the structure of the string
     date = parts[0].split(":")[1].strip()
     flow = float(parts[1].split(":")[1].strip())
-    temperature = float(parts[2].split(":")[1].strip())
-    turbidity = float(parts[3].split(":")[1].strip())
+    turbidity = float(parts[2].split(":")[1].strip())
+    temperature  = 0
 
 
     date_time = datetime.strptime(date, "%Y-%m-%d %H-%M-%S")

@@ -26,17 +26,17 @@ def load_data():
     finally:
         conn.close() 
 
-def insert_data(timestamp, flow_rate, day_type, month, temperature, purity):
+def insert_data(timestamp, flow_rate, temperature, purity):
     conn = init_db()
     if conn is None:
         return False
     try:
         cur = conn.cursor()
         insert_query = """
-        INSERT INTO water_usage (timestamp, flow_rate, day_type, month, temperature, purity)
-        VALUES (%s, %s, %s, %s, %s, %s);
+        INSERT INTO water_usage (timestamp, flow_rate, temperature, purity)
+        VALUES (%s, %s, %s, %s);
         """
-        cur.execute(insert_query, (timestamp, flow_rate, day_type, month, temperature, purity))
+        cur.execute(insert_query, (timestamp, flow_rate, temperature, purity))
         conn.commit()
         return True
     except psycopg2.Error as e:
