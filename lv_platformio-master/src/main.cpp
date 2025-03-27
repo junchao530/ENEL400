@@ -3,9 +3,11 @@
 #include "lvgl.h"
 #include "ui.h"
 #include "app_hal.h"
+#include "RTClib.h"
+#include "communication.h"
 
 // Pin Definitions for Sensors
-#define NUM_ARCS 3
+#define NUM_ARCS 2
 #define TURBIDITY_SENSOR 34
 #define FLOW_SENSOR 14
 
@@ -17,6 +19,9 @@ long turbidity_raw, water_quality_score;
 
 // Bluetooth object
 BluetoothSerial SerialBT;
+
+// RTC Object
+RTC_DS1307 rtc;
 
 // Global UI object arrays
 lv_obj_t *arcs[NUM_ARCS];
@@ -40,6 +45,13 @@ void setup() {
   // Flow Sensor Initialization
   pinMode(FLOW_SENSOR, INPUT);
 
+  // Setting up RTC
+  if (!rtc.begin()) {
+		Serial.println("Couldn't find RTC");
+	}
+
+  rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
+
 
   // Set background color for the screen
   lv_obj_set_style_bg_color(lv_scr_act(), lv_color_hex(0x16161c), LV_PART_MAIN);
@@ -59,29 +71,22 @@ void setup() {
 
   // Generate UI arcs for flow, temperature, and quality
   generate_flow_arc();
-  generate_temperature_arc();
   generate_quality_arc();
 }
 
 void loop() {
-  SerialBT.println("Hello from ESP32");
 
   // Turbidity sensor shit
   run_turbidity_sensor();
-  SerialBT.println("Turbidity value: ");
-  SerialBT.println(water_quality_score);
-  Serial.println("Water quality score: ");
-  Serial.println(water_quality_score);
-
-  // Flow sensor shit
-  run_flow_sensor();
-  SerialBT.println("Flow rate: ");
-  SerialBT.println(flow_rate);
-  Serial.println("Flow rate: ");
-  Serial.println(flow_rate);
-
   update_arc_values();
   lv_task_handler();
 
-  delay(1000);
+  // Flow sensor shit
+  run_flow_sensor();
+  update_arc_values();
+  lv_task_handler();
+
+  push_data();
+
+  delay(100);
 }

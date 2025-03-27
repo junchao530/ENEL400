@@ -9,7 +9,6 @@ extern "C" {
 
 // Declarations for UI-related functions
 void generate_flow_arc(void);
-void generate_temperature_arc(void);
 void generate_quality_arc(void);
 void update_arc_values(void);
 void apply_styles(lv_obj_t *arc, lv_obj_t *title_label, lv_obj_t *value_label);
