@@ -27,8 +27,8 @@ def parse_data_packet(packet):
         parts = packet.split(';')
         
         # Ensure packet has enough parts
-        if len(parts) < 3:
-            raise ValueError("Incomplete packet")
+        # if len(parts) < 3:
+        #     raise ValueError("Incomplete packet")
 
         # Extract each value based on the structure of the string
         date = parts[0].split(":")[1].strip()

@@ -266,20 +266,27 @@ def read_from_usb(connection):
     return None
 
 def parse_data_packet(packet):
-    print(packet)
-    parts = packet.split(';')
+    try:
+        print(packet)
+        parts = packet.split(';')
+        
+        # Ensure packet has enough parts
+        if len(parts) < 3:
+            raise ValueError("Incomplete packet")
 
-# Extract each value based on the structure of the string
-    date = parts[0].split(":")[1].strip()
-    flow = float(parts[1].split(":")[1].strip())
-    turbidity = float(parts[2].split(":")[1].strip())
-    temperature  = 0
+        # Extract each value based on the structure of the string
+        date = parts[0].split(":")[1].strip()
+        flow = float(parts[1].split(":")[1].strip())
+        turbidity = float(parts[2].split(":")[1].strip())
+        temperature = 0
 
+        date_time = datetime.strptime(date, "%Y-%m-%d %H-%M-%S")
+        return date_time, flow, temperature, turbidity
 
-    date_time = datetime.strptime(date, "%Y-%m-%d %H-%M-%S")
+    except (IndexError, ValueError, AttributeError) as e:
+        print(f"Error parsing packet: {e}")
+        return None, None, None, None
 
-
-    return date_time, flow, temperature, turbidity
 
 def Real_Time():
     #st.title("Real-Time Data Visualization")

@@ -60,6 +60,21 @@ def load_calgary_data():
         st.error(f"Database query error: {e}")
         return pd.DataFrame()
     finally:
+        conn.close()
+
+def load_water_usage():
+    conn = init_db()
+    if conn is None:
+        return pd.DataFrame()
+    try:
+        query = "SELECT * FROM water_usage_data WHERE EXTRACT(YEAR FROM timestamp) >= 2024;"
+        data = pd.read_sql(query, conn)
+        data['timestamp'] = pd.to_datetime(data['timestamp'], format="%Y-%m-%d %h:%m:s")  # Ensure datetime format
+        return data
+    except psycopg2.Error as e:
+        st.error(f"Database query error: {e}")
+        return pd.DataFrame()
+    finally:
         conn.close()  
 
 def aggregate_data(data, date, type):

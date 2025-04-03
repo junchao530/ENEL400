@@ -1,6 +1,6 @@
 import streamlit as st
 from modules.postgresDataLoader import load_data, aggregate_data, load_calgary_data, insert_data
-from modules.projections import load_prophet_model, create_forecast_chart
+from modules.projections import forecast_period, fore_cast_projection
 from modules.plots import plots, cost_analysis, calgary_water_usage
 from modules.utils import calculate_vol, bar_data
 from modules.hardwareConnections import usb_init, read_from_bluetooth, parse_data_packet, Real_Time
@@ -51,8 +51,14 @@ if page_selection == "Historical" and not df.empty:
     cost_analysis(date, time_frame, flow_avg)
 
 elif page_selection == "Forecast":
+    time_frame = st.sidebar.radio("Time Frame", ["Daily", "Monthly", "Yearly"])
     st.title("Water Usage Forecast")
-    calgary_water_usage()
+    result, period_start, period_end = forecast_period(granularity=time_frame, current_time=None)
+    fore_cast_projection(result, period_start, period_end, time_frame)
+    st.subheader("Forecast Insights")
+    
+
+    
 
 # Real-Time Monitoring always runs
 elif page_selection == "Real-Time Monitoring":
